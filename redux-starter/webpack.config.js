@@ -1,4 +1,4 @@
-const path = require("path");
+surconst path = require("path");
 
 module.exports = {
   entry: "./src/index.js",
