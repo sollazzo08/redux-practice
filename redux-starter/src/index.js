@@ -1,15 +1,11 @@
-import store from './store'
-import * as actions from './actionTypes'
-import { bugAdded, bugResolved } from './actions';
+import configureStore from './store/configureStore';
+import * as actions from './store/bugs';
 
-//Function inside subscribe gets called every time the store gets changed
-const unsubscribe = store.subscribe(() => {
-  console.log('Store changed!', store.getState())
-})
+const store = configureStore();
 
-store.dispatch(bugAdded("Bug 1"))
-store.dispatch(bugResolved(1))
+store.dispatch(actions.bugAdded({ description: 'Bug 1' }));
+store.dispatch(actions.bugAdded({ description: 'Bug 2' }));
+store.dispatch(actions.bugAdded({ description: 'Bug 3' }));
+store.dispatch(actions.bugResolved({id: 1}));
 
-
-
-console.log(store.getState())
+console.log(store.getState());
