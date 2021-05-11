@@ -5,16 +5,15 @@ const slice = createSlice({
   name: 'users',
   initialState: [],
   reducers: {
-    addUser: (users, action) => {
+    userAdded: (users, action) => {
       users.push({
         id: ++lastId,
-        username: action.payload.username,
-        assignedBugs 
+        name: action.payload.name,
       })
 
     }
   }
 })
 
-export const { addUser } = slice.actions 
+export const { userAdded } = slice.actions 
 export default slice.reducer

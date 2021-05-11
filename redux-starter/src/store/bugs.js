@@ -1,6 +1,7 @@
 // Ducks Patter
 import { createSlice } from '@reduxjs/toolkit';
 import { createSelector } from 'reselect';
+import users from './users';
 
 let lastId = 0;
 
@@ -21,12 +22,14 @@ const slice = createSlice({
       bugs[index].resolved = true;
     },
     bugAssignToUser: (bugs, action) => {
-      
+      const {bugId, userId } = action.payload;
+      const index = bugs.findIndex(bug => bug.id === bugId)
+      bugs[index].userId = userId;
     }
   },
 });
 
-export const { bugAdded, bugResolved } = slice.actions;
+export const { bugAdded, bugResolved, bugAssignToUser} = slice.actions;
 export default slice.reducer;
 
 // Selector
@@ -35,6 +38,11 @@ export default slice.reducer;
 export const getUnresolvedBugs = createSelector(
   state => state.entities.bugs,
   bugs => bugs.filter(bug => !bug.resolved)
+)
+//Selector for getting the bugs assigned to a user
+export const getBugsByUser = userId => createSelector(
+  state => state.entities.bugs,
+  bugs => bugs.filter(bug => bug.userId === userId)
 )
 
 
