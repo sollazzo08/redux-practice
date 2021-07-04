@@ -2,8 +2,8 @@
 import { createSlice } from '@reduxjs/toolkit';
 import { createSelector } from 'reselect';
 import { apiCallBegan } from './api';
+import moment from 'moment';
 
-let lastId = 0;
 
 const slice = createSlice({
   name: 'bugs',
@@ -24,27 +24,29 @@ const slice = createSlice({
     bugsReceived: (bugs, action) => {
       bugs.list = action.payload;
       bugs.loading = false;
+      bugs.lastFetch = Date.now()
     },
+    /*Redux tool/kit automatically creates an action for us called bugAdded 
+      * command - event    (command - represents an instruction. event - represents what just happened)
+      * addBug - bugAdded (two actions with similar names)
+    */
     bugAdded: (bugs, action) => {
-      bugs.list.push({
-        id: ++lastId,
-        description: action.payload.description,
-        resolved: false,
-      });
+      bugs.list.push(action.payload);
     },
+    // resolveBug (command) - bugResolved (event)  
     bugResolved: (bugs, action) => {
       const index = bugs.list.findIndex((bug) => bug.id === action.payload.id);
       bugs.list[index].resolved = true;
     },
     bugAssignToUser: (bugs, action) => {
-      const { bugId, userId } = action.payload;
+      const { id: bugId, userId } = action.payload;
       const index = bugs.list.findIndex((bug) => bug.id === bugId);
       bugs.list[index].userId = userId;
     },
   },
 });
 
-export const {
+const {
   bugAdded,
   bugResolved,
   bugAssignToUser,
@@ -54,16 +56,48 @@ export const {
 } = slice.actions;
 export default slice.reducer;
 
-//Action Creators
+//ACTION CREATORS aka (instructions)
 const url = '/bugs';
 
-export const loadBugs = () =>
-  apiCallBegan({
+//dispatching and api load action
+export const loadBugs = () => (dispatch, getState) => {
+
+  const {lastFetch} = getState().entities.bugs;
+
+  const diffInMinutes = moment().diff(moment(lastFetch), 'minutes')
+
+  if(diffInMinutes < 10) return 
+  
+  dispatch(apiCallBegan({
     url,
     onStart: bugsRequested.type,
     onSuccess: bugsReceived.type,
     onError: bugsRequestedFailed.type
-  });
+  }));
+}
+
+export const addBug = bug => apiCallBegan({
+  url,
+  method: "post",
+  data: bug,
+  onSuccess: bugAdded.type
+})
+
+export const resolveBug = id => apiCallBegan({
+  url: url + '/' + id,
+  method: "patch",
+  data: {resolved: true},
+  onSuccess: bugResolved.type
+})
+
+export const assignBugToUser = (bugId, userId)=> apiCallBegan({
+  url: url + '/' + bugId,
+  method: "patch",
+  data: {userId},
+  onSuccess: bugAssignToUser.type
+})
+
+
 
 // Selector
 // Memoization is a technique for optimization expensive functions
