@@ -7,7 +7,13 @@ class Bugs extends Component {
     this.props.loadBugs();
   }
 
+
+
+
+
+
   render() {
+    console.log(this.props.bugs)
     return (
       <ul>
         {this.props.bugs.map((bug) => (

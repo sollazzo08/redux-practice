@@ -7,7 +7,7 @@ const BugsList = () => {
   const bugs = useSelector(getUnresolvedBugs);
 
   useEffect(() => {
-    dispatch(loadBugs());
+    dispatch(loadBugs())
   }, []);
 
   return (
